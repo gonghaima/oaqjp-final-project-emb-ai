@@ -12,11 +12,25 @@ REQUEST_TIMEOUT_SECONDS = 30
 
 
 def emotion_detector(text_to_analyze):
-    """Return the emotion scores for the text along with the dominant emotion."""
+    """Return the emotion scores for the text along with the dominant emotion.
+
+    If the service responds with status code 400 (blank input), every value in
+    the returned dictionary is None.
+    """
     input_json = {"raw_document": {"text": text_to_analyze}}
     response = requests.post(
         URL, json=input_json, headers=HEADERS, timeout=REQUEST_TIMEOUT_SECONDS
     )
+
+    if response.status_code == 400:
+        return {
+            "anger": None,
+            "disgust": None,
+            "fear": None,
+            "joy": None,
+            "sadness": None,
+            "dominant_emotion": None,
+        }
 
     formatted_response = json.loads(response.text)
     emotions = formatted_response["emotionPredictions"][0]["emotion"]
